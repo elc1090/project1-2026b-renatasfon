@@ -40,6 +40,7 @@
             <div
                 id="addTitle"
                 contenteditable="true"
+                class="editable-title"
                 data-placeholder="Title">
             </div>
 
@@ -61,11 +62,20 @@
                         • Lista
                     </button>
 
-                </div>
+                    <button type="button" onclick="applyMarkdownToActive()">
+                        Markdown
+                    </button>
 
+                </div>
+               
+            <input type="text" id="addTags" placeholder="Tags (separadas por vírgula)"> 
+
+            <input type="color" id="addColor" value="#000000">
+                
                 <div
                     id="addText"
                     contenteditable="true"
+                    class="editable-text"
                     data-placeholder="Take a note..">
                 </div>
 

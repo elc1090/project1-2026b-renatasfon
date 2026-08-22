@@ -104,6 +104,59 @@
     margin-left: 20px;
 }
 
+.editable-title,
+.editable-text {
+    width: 100%;
+    background-color: transparent;
+    border: none;
+    outline: none;
+    margin-top: 6px;
+    color: white;
+}
+
+.editable-title:empty::before,
+.editable-text:empty::before {
+    content: attr(data-placeholder);
+    color: #888;
+}
+
+.editable-title {
+    font-weight: bold;
+    min-height: 25px;
+}
+
+.editable-text {
+    min-height: 150px;
+    line-height: 1.5;
+}
+
+.note-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 15px;
+}
+
+.tag {
+    background-color: #282b35;
+    color: #F9BD34;
+    border: 1px solid #F9BD34;
+    border-radius: 12px;
+    padding: 4px 9px;
+    font-size: 13px;
+}
+
+#addColor {
+    width: 45px;
+    height: 35px;
+    padding: 2px;
+    margin-top: 10px;
+    margin-bottom: 10px;
+    border: 1px solid white;
+    background-color: transparent;
+    cursor: pointer;
+}
+
 .top-actions {
     width: 100%;
     display: flex;

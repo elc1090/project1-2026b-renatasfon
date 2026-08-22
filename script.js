@@ -1,5 +1,7 @@
 const addTitle = document.getElementById('addTitle');
 const addText = document.getElementById('addText');
+const addTags = document.getElementById('addTags');
+const addColor = document.getElementById('addColor');
 const addNoteButton = document.getElementById('addNote');
 const addFolderButton = document.getElementById('addFolder');
 const notesDiv = document.getElementById('notes');
@@ -25,6 +27,81 @@ function formatText(command){
     document.execCommand(command, false, null);
 
     addText.focus();
+}
+
+function markdownToHTML(text){
+
+    text = text
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;");
+
+    text = text.replace(
+        /\*\*(.*?)\*\*/g,
+        '<strong>$1</strong>'
+    );
+
+    text = text.replace(
+        /(?<!\*)\*([^*]+)\*(?!\*)/g,
+        '<em>$1</em>'
+    );
+
+    text = text.replace(
+        /^# (.+)$/gm,
+        '<strong>$1</strong>'
+    );
+
+    text = text.replace(
+        /^- (.+)$/gm,
+        '• $1'
+    );
+
+    text = text.replace(/\n/g, '<br>');
+
+    return text;
+}
+
+function applyMarkdown(element){
+
+    const text = element.innerText;
+
+    if(text.trim() === ''){
+        return;
+    }
+
+    const html = markdownToHTML(text);
+
+    element.innerHTML = html;
+
+    element.focus();
+
+    const range = document.createRange();
+    range.selectNodeContents(element);
+    range.collapse(false);
+
+    const selection = window.getSelection();
+
+    selection.removeAllRanges();
+    selection.addRange(range);
+}
+
+let activeEditor = null;
+
+addTitle.addEventListener('focus', function(){
+    activeEditor = addTitle;
+});
+
+addText.addEventListener('focus', function(){
+    activeEditor = addText;
+});
+
+function applyMarkdownToActive(){
+
+    if(activeEditor === null){
+        return;
+    }
+
+    applyMarkdown(activeEditor);
 }
 
 function dragStart(ind, fromFolder = false){
@@ -171,14 +248,23 @@ function addNotes(){
         return;
     }
     
+    const tags = addTags.value
+        .split(',')
+        .map(tag => tag.trim())
+        .filter(tag => tag !== '');
+
     const noteObj = {
         type: "note",
         title: addTitle.innerHTML,
         text: addText.innerHTML,
+        tags: tags,
+        color: addColor.value,
         fixed: false
     }
     addTitle.innerHTML = '';
     addText.innerHTML = '';
+    addTags.value = '';
+    addColor.value = '#000000';
 
     if(currentFolder === null){
 
@@ -256,6 +342,7 @@ function showNotes(){
     inputBox.style.display = 'block';
     trashButton.style.display = 'block';
     addFolderButton.style.display = 'inline-block';
+    exportAllButton.style.display = 'inline-block';
 
     let notesHTML = '';
 
@@ -267,7 +354,6 @@ function showNotes(){
         notes = JSON.parse(notes);
     }
 
-    // Cria uma cópia dos itens com seu índice original
     const sortedNotes = notes
         .map((item, index) => ({
             item: item,
@@ -325,6 +411,7 @@ function showNotes(){
 
             notesHTML += `
                 <div class="note"
+                    style="border-color: ${item.color || '#000000'}"
                      draggable="true"
                      ondragstart="dragStart(${originalIndex})"
                      ondragover="allowDrop(event)"
@@ -354,6 +441,11 @@ function showNotes(){
 
                     <div class="text">
                         ${item.text}
+                    </div>
+
+                    <div class="note-tags">
+                        ${(item.tags || []).map(tag => `
+                            <span class="tag">#${tag}</span>`).join('')}
                     </div>
 
                     <button
@@ -482,6 +574,7 @@ function showFolder(){
     inputBox.style.display = 'block';
     trashButton.style.display = 'none';
     addFolderButton.style.display = 'none';
+    exportAllButton.style.display = 'none';
 
     let notes = localStorage.getItem('notes');
 
@@ -529,6 +622,7 @@ function showFolder(){
 
         notesHTML += `
             <div class="note"
+                style="border-color: ${note.color || '#000000'}"
                  draggable="true"
                  ondragstart="dragStart(${originalIndex}, true)"
                  ondragover="allowDrop(event)"
@@ -554,6 +648,11 @@ function showFolder(){
 
                 <div class="text">
                     ${note.text}
+                </div>
+
+                <div class="note-tags">
+                    ${(note.tags || []).map(tag => `
+                        <span class="tag">#${tag}</span>`).join('')}
                 </div>
 
                 <button
@@ -739,6 +838,9 @@ function deleteNote(ind){
         type: "note",
         title: note.title,
         text: note.text,
+        tags: note.tags || [],
+        color: note.color || "#000000",
+        fixed: note.fixed || false,
         originalLocation: "main"
     };
 
@@ -810,6 +912,9 @@ function deleteNoteFromFolder(ind){
         type: "note",
         title: note.title,
         text: note.text,
+        tags: note.tags || [],
+        color: note.color || "#000000",
+        fixed: note.fixed || false,
         originalLocation: "folder",
         originalFolderId: folder.id
     };
@@ -974,7 +1079,10 @@ function restoreItem(ind){
             const restoredNote = {
                 type: "note",
                 title: item.title,
-                text: item.text
+                text: item.text,
+                tags: item.tags || [],
+                color: item.color || "#000000",
+                fixed: item.fixed || false
             };
 
             folder.notes.push(restoredNote);
