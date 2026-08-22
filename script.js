@@ -5,6 +5,7 @@ const addFolderButton = document.getElementById('addFolder');
 const notesDiv = document.getElementById('notes');
 const inputBox = document.getElementById('input-box');
 const trashButton = document.getElementById('trashButton');
+const exportAllButton = document.getElementById('exportAll');
 
 let currentFolder = null;
 
@@ -134,10 +135,6 @@ function showNotes(){
 
         }
 
-        // ==========================
-        // NOTA
-        // ==========================
-
         else{
 
             notesHTML += `
@@ -163,6 +160,12 @@ function showNotes(){
                         ${notes[i].text}
                     </div>
 
+                    <button
+                        class="exportNote"
+                        onclick="exportNote(${i})">
+                        Exportar
+                   </button>
+
                 </div>
             `;
         }
@@ -171,11 +174,105 @@ function showNotes(){
     notesDiv.innerHTML = notesHTML;
 }
 
+function exportNote(ind){
+
+    let notes = localStorage.getItem('notes');
+
+    if(notes === null){
+        return;
+    }
+
+    notes = JSON.parse(notes);
+
+    const note = notes[ind];
+
+    if(note.type === "folder"){
+        return;
+    }
+
+    const title = note.title === "" ? "Note" : note.title;
+
+    const content = `Título: ${title}
+
+Texto:
+${note.text}`;
+
+    const blob = new Blob([content], {
+        type: "text/plain"
+    });
+
+    const link = document.createElement("a");
+
+    link.href = URL.createObjectURL(blob);
+
+    link.download = `${title}.txt`;
+
+    link.click();
+
+    URL.revokeObjectURL(link.href);
+}
+
 function openFolder(ind){
 
     currentFolder = ind;
 
     showFolder();
+}
+
+function exportAllNotes(){
+
+    let notes = localStorage.getItem('notes');
+
+    if(notes === null){
+        return;
+    }
+
+    notes = JSON.parse(notes);
+
+    let content = '';
+
+    let noteCount = 0;
+
+    for(let i = 0; i < notes.length; i++){
+
+        // Ignora as pastas
+        if(notes[i].type === "folder"){
+            continue;
+        }
+
+        noteCount++;
+
+        const title = notes[i].title === "" ? "Note" : notes[i].title;
+
+        content += `===== NOTA ${noteCount} =====
+
+Título: ${title}
+
+Texto:
+${notes[i].text}
+
+`;
+    }
+
+    // Não cria arquivo se não houver nenhuma nota
+    if(noteCount === 0){
+        alert("Não há notas para exportar.");
+        return;
+    }
+
+    const blob = new Blob([content], {
+        type: "text/plain"
+    });
+
+    const link = document.createElement("a");
+
+    link.href = URL.createObjectURL(blob);
+
+    link.download = "todas-as-notas.txt";
+
+    link.click();
+
+    URL.revokeObjectURL(link.href);
 }
 
 function showFolder(){
@@ -208,7 +305,9 @@ function showFolder(){
         notesHTML += `
             <div class="note">
 
-                <button class="deleteNote" onclick="deleteNoteFromFolder(${i})">
+                <button 
+                    class="deleteNote" 
+                    onclick="deleteNoteFromFolder(${i})">
                     🗑️
                 </button>
                 
@@ -219,11 +318,103 @@ function showFolder(){
                 </span>
 
                 <div class="text">${folder.notes[i].text}</div>
+
+                <button
+                    class="exportNote"
+                    onclick="exportNoteFromFolder(${i})">
+                    Exportar
+                </button>
+
             </div>
         `;
     }
 
     notesDiv.innerHTML = folderHTML + notesHTML;
+}
+
+function exportNoteFromFolder(ind){
+
+    let notes = localStorage.getItem('notes');
+
+    if(notes === null){
+        return;
+    }
+
+    notes = JSON.parse(notes);
+
+    const folder = notes[currentFolder];
+    const note = folder.notes[ind];
+
+    const title = note.title === "" ? "Note" : note.title;
+
+    const content = `Título: ${title}
+
+Texto:
+${note.text}`;
+
+    const blob = new Blob([content], {
+        type: "text/plain"
+    });
+
+    const link = document.createElement("a");
+
+    link.href = URL.createObjectURL(blob);
+
+    link.download = `${title}.txt`;
+
+    link.click();
+
+    URL.revokeObjectURL(link.href);
+}
+
+function exportAllNotesFromFolder(){
+
+    let notes = localStorage.getItem('notes');
+
+    if(notes === null){
+        return;
+    }
+
+    notes = JSON.parse(notes);
+
+    const folder = notes[currentFolder];
+
+    let content = '';
+
+    if(folder.notes.length === 0){
+        alert("Não há notas nesta pasta para exportar.");
+        return;
+    }
+
+    for(let i = 0; i < folder.notes.length; i++){
+
+        const title = folder.notes[i].title === ""
+            ? "Note"
+            : folder.notes[i].title;
+
+        content += `===== NOTA ${i + 1} =====
+
+Título: ${title}
+
+Texto:
+${folder.notes[i].text}
+
+`;
+    }
+
+    const blob = new Blob([content], {
+        type: "text/plain"
+    });
+
+    const link = document.createElement("a");
+
+    link.href = URL.createObjectURL(blob);
+
+    link.download = `${folder.title}-notas.txt`;
+
+    link.click();
+
+    URL.revokeObjectURL(link.href);
 }
 
 function backToNotes(){
@@ -555,4 +746,5 @@ function deletePermanently(ind){
 
 addNoteButton.addEventListener('click', addNotes);
 addFolderButton.addEventListener('click', addFolder);
+exportAllButton.addEventListener('click', exportAllNotes);
 trashButton.addEventListener('click', showTrash);

@@ -12,13 +12,19 @@
         <div>✍️</div>
         <h1>My Notes</h1>
     </header>
+    <p class="export-info">
+        Exportação disponível apenas para notas. Pastas não são exportadas.
+    </p>
     <div class="container">
+        <div class="top-actions">
+             <button id="addFolder">Nova pasta</button>
+             <button id="exportAll">Exportar todas notas</button>
+        </div>
         <div id="input-box">
            <input type="text" id="addTitle" placeholder="Title">
             <textarea name="" id="addText" cols="30" rows="10" placeholder="Take a note.."></textarea>
             
             <button id="addNote">Add</button>
-            <button id="addFolder">Nova pasta</button>
         </div>
 
         <div id="notes">

@@ -30,6 +30,17 @@
     margin-top: 10px;
 }
 
+.top-actions {
+    width: 100%;
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-bottom: 8px;
+}
+
+.top-actions button {
+    cursor: pointer;
+}
 
 #input-box{
     border: 1px solid black;
@@ -86,6 +97,12 @@ button{
 .note .text {
     color: #a1a0a0;
     line-height: 1.4;
+}
+
+.exportNote {
+    margin-top: 15px;
+    cursor: pointer;
+    font-size: 14px;
 }
 
 .folder {
