@@ -21,8 +21,55 @@
              <button id="exportAll">Exportar todas notas</button>
         </div>
         <div id="input-box">
-           <input type="text" id="addTitle" placeholder="Title">
-            <textarea name="" id="addText" cols="30" rows="10" placeholder="Take a note.."></textarea>
+           
+        <div id="title-editor">
+
+            <div id="title-toolbar">
+
+                 
+                <button type="button" onclick="formatTitle('bold')">
+                    <strong>B</strong>
+                </button>
+
+                <button type="button" onclick="formatTitle('italic')">
+                     <em>I</em>
+                </button>
+
+            </div>
+
+            <div
+                id="addTitle"
+                contenteditable="true"
+                data-placeholder="Title">
+            </div>
+
+        </div>
+            
+           <div id="editor">
+
+                <div id="toolbar">
+
+                    <button type="button" onclick="formatText('bold')">
+                        <strong>B</strong>
+                    </button>
+
+                    <button type="button" onclick="formatText('italic')">
+                        <em>I</em>
+                    </button>
+
+                    <button type="button" onclick="formatText('insertUnorderedList')">
+                        • Lista
+                    </button>
+
+                </div>
+
+                <div
+                    id="addText"
+                    contenteditable="true"
+                    data-placeholder="Take a note..">
+                </div>
+
+            </div>
 
             <button id="addNote">Add</button>
         </div>

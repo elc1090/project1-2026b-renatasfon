@@ -13,6 +13,20 @@ let draggedFromFolder = null;
 
 showNotes();
 
+function formatTitle(command){
+
+    document.execCommand(command, false, null);
+
+    addTitle.focus();
+}
+
+function formatText(command){
+
+    document.execCommand(command, false, null);
+
+    addText.focus();
+}
+
 function dragStart(ind, fromFolder = false){
 
     draggedIndex = ind;
@@ -152,19 +166,19 @@ function addNotes(){
         notes = JSON.parse(notes);
     }
 
-    if(addText.value == ''){
+    if(addText.innerText.trim() == ''){
         alert('Add your note');
         return;
     }
     
     const noteObj = {
         type: "note",
-        title: addTitle.value,
-        text: addText.value,
+        title: addTitle.innerHTML,
+        text: addText.innerHTML,
         fixed: false
     }
-    addTitle.value = '';
-    addText.value = '';
+    addTitle.innerHTML = '';
+    addText.innerHTML = '';
 
     if(currentFolder === null){
 
@@ -356,6 +370,13 @@ function showNotes(){
     notesDiv.innerHTML = notesHTML;
 }
 
+function openFolder(ind){
+
+    currentFolder = ind;
+
+    showFolder();
+}
+
 function exportNote(ind){
 
     let notes = localStorage.getItem('notes');
@@ -368,16 +389,22 @@ function exportNote(ind){
 
     const note = notes[ind];
 
+    if(note === undefined){
+        return;
+    }
+
     if(note.type === "folder"){
         return;
     }
 
-    const title = note.title === "" ? "Note" : note.title;
+    const title = note.title;
+
+    const text = note.text;
 
     const content = `Título: ${title}
 
 Texto:
-${note.text}`;
+${text}`;
 
     const blob = new Blob([content], {
         type: "text/plain"
@@ -392,13 +419,6 @@ ${note.text}`;
     link.click();
 
     URL.revokeObjectURL(link.href);
-}
-
-function openFolder(ind){
-
-    currentFolder = ind;
-
-    showFolder();
 }
 
 function exportAllNotes(){
@@ -417,21 +437,22 @@ function exportAllNotes(){
 
     for(let i = 0; i < notes.length; i++){
 
-        // Ignora as pastas
         if(notes[i].type === "folder"){
             continue;
         }
 
         noteCount++;
 
-        const title = notes[i].title === "" ? "Note" : notes[i].title;
+        const title = notes[i].title 
+
+        const text = notes[i].text;
 
         content += `===== NOTA ${noteCount} =====
 
 Título: ${title}
 
 Texto:
-${notes[i].text}
+${text}
 
 `;
     }
@@ -470,7 +491,6 @@ function showFolder(){
 
     notes = JSON.parse(notes);
 
-    // Pega a pasta atual
     const folder = notes[currentFolder];
 
     if(folder === undefined){
@@ -595,14 +615,25 @@ function exportNoteFromFolder(ind){
     notes = JSON.parse(notes);
 
     const folder = notes[currentFolder];
+
+    if(folder === undefined){
+        return;
+    }
+
     const note = folder.notes[ind];
 
-    const title = note.title === "" ? "Note" : note.title;
+    if(note === undefined){
+        return;
+    }
+
+    const title = note.title;
+
+    const text = note.text;
 
     const content = `Título: ${title}
 
 Texto:
-${note.text}`;
+${text}`;
 
     const blob = new Blob([content], {
         type: "text/plain"
@@ -619,6 +650,17 @@ ${note.text}`;
     URL.revokeObjectURL(link.href);
 }
 
+function backToNotes(){
+
+    currentFolder = null;
+
+    inputBox.style.display = 'block';
+
+    trashButton.style.display = 'block';
+
+    showNotes();
+}
+
 function exportAllNotesFromFolder(){
 
     let notes = localStorage.getItem('notes');
@@ -631,6 +673,10 @@ function exportAllNotesFromFolder(){
 
     const folder = notes[currentFolder];
 
+    if(folder === undefined){
+        return;
+    }
+
     let content = '';
 
     if(folder.notes.length === 0){
@@ -640,16 +686,16 @@ function exportAllNotesFromFolder(){
 
     for(let i = 0; i < folder.notes.length; i++){
 
-        const title = folder.notes[i].title === ""
-            ? "Note"
-            : folder.notes[i].title;
+        const title = folder.notes[i].title;
+
+        const text = folder.notes[i].text;
 
         content += `===== NOTA ${i + 1} =====
 
 Título: ${title}
 
 Texto:
-${folder.notes[i].text}
+${text}
 
 `;
     }
@@ -667,17 +713,6 @@ ${folder.notes[i].text}
     link.click();
 
     URL.revokeObjectURL(link.href);
-}
-
-function backToNotes(){
-
-    currentFolder = null;
-
-    inputBox.style.display = 'block';
-
-    trashButton.style.display = 'block';
-
-    showNotes();
 }
 
 function deleteNote(ind){

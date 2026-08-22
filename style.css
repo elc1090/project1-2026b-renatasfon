@@ -30,6 +30,80 @@
     margin-top: 10px;
 }
 
+#title-editor {
+    width: 100%;
+}
+
+#title-toolbar {
+    display: flex;
+    gap: 5px;
+    margin-bottom: 5px;
+}
+
+#title-toolbar button {
+    padding: 4px 9px;
+    cursor: pointer;
+}
+
+#addTitle {
+    width: 100%;
+    min-height: 35px;
+
+    background-color: transparent;
+    outline: none;
+
+    color: white;
+
+    padding: 5px;
+    font-weight: bold;
+}
+
+#addTitle:empty::before {
+    content: attr(data-placeholder);
+    color: #777;
+    pointer-events: none;
+}
+
+#editor {
+    width: 100%;
+    margin-top: 6px;
+}
+
+#toolbar {
+    display: flex;
+    gap: 5px;
+    margin-bottom: 8px;
+}
+
+#toolbar button {
+    padding: 5px 10px;
+    cursor: pointer;
+}
+
+#addText {
+    width: 100%;
+    min-height: 150px;
+
+    background-color: transparent;
+    outline: none;
+
+    color: white;
+
+    padding: 8px;
+
+    border: 1px solid #555;
+}
+
+#addText:empty::before {
+    content: attr(data-placeholder);
+    color: #777;
+    pointer-events: none;
+}
+
+#addText ul {
+    margin-left: 20px;
+}
+
 .top-actions {
     width: 100%;
     display: flex;
