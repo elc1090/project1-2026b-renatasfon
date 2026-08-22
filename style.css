@@ -65,8 +65,32 @@ button{
     overflow-wrap: break-word;
     margin: 12px;
     padding: 12px;
-    border: 1px solid black;
+    border: 2px solid black;
     background: transparent;
+}
+
+.folder{
+    width: 200px;
+    color: white;
+    margin: 12px;
+    padding: 20px;
+    border: 2px solid black;
+    background: transparent;
+    cursor: pointer;
+    text-align: center;
+}
+
+.folder div{
+    font-size: 50px;
+}
+
+.icone-canto {
+    top: 20px;
+    right: 20px;
+    background: none;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
 }
 
 .deleteNote{

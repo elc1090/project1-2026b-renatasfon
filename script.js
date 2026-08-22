@@ -1,6 +1,7 @@
 const addTitle = document.getElementById('addTitle');
 const addText = document.getElementById('addText');
 const addNoteButton = document.getElementById('addNote');
+const addFolderButton = document.getElementById('addFolder');
 const notesDiv = document.getElementById('notes');
 
 showNotes();
@@ -19,6 +20,7 @@ function addNotes(){
     }
     
     const noteObj = {
+        type: "note",
         title: addTitle.value,
         text: addText.value,
     }
@@ -26,6 +28,29 @@ function addNotes(){
     addText.value = '';
     notes.push(noteObj);
     localStorage.setItem('notes', JSON.stringify(notes));
+    showNotes();
+}
+
+function addFolder(){
+    
+    let notes = localStorage.getItem('notes');
+
+    if(notes === null){
+        notes = [];
+    }else{
+        notes = JSON.parse(notes);
+    }
+
+    const folderObj = {
+        type: "folder",
+        title: "Nova pasta",
+        notes: []
+    }
+
+    notes.push(folderObj);
+
+    localStorage.setItem('notes', JSON.stringify(notes));
+
     showNotes();
 }
 
@@ -38,12 +63,28 @@ function showNotes(){
         notes = JSON.parse(notes);
     }
     for(let i=0; i<notes.length; i++){
-        notesHTML += `<div class="note">
-                    <button class="deleteNote" id=${i} onclick="deleteNote(${i})">Delete</button>
-                    <span class="title"><strong style="font-size: 20px;">${notes[i].title === "" ? 'Note' : notes[i].title}</strong></span>
+        if(notes[i].type === "folder"){
+
+            notesHTML += `
+                <div class="folder">
+                    <div>📁</div>
+                    <strong>${notes[i].title}</strong>
+                </div>
+            `;
+         }else{
+
+            notesHTML += `
+                <div class="note">
+                    <button class="deleteNote" id=${i} onclick="deleteNote(${i})">Lixeira</button>
+                    <span class="title">
+                        <strong style="font-size: 20px;">
+                            ${notes[i].title === "" ? 'Note' : notes[i].title}
+                        </strong>
+                    </span>
                     <div class="text">${notes[i].text}</div>
                 </div>
-        `
+            `;
+        }
     }
     notesDiv.innerHTML = notesHTML;
 }
