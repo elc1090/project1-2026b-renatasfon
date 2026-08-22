@@ -8,8 +8,141 @@ const trashButton = document.getElementById('trashButton');
 const exportAllButton = document.getElementById('exportAll');
 
 let currentFolder = null;
+let draggedIndex = null;
+let draggedFromFolder = null;
 
 showNotes();
+
+function dragStart(ind, fromFolder = false){
+
+    draggedIndex = ind;
+    draggedFromFolder = fromFolder;
+}
+
+function allowDrop(event){
+
+    event.preventDefault();
+}
+
+function dropItem(ind){
+
+    if(draggedIndex === null){
+        return;
+    }
+
+    let notes = localStorage.getItem('notes');
+
+    if(notes === null){
+        return;
+    }
+
+    notes = JSON.parse(notes);
+
+    const draggedItem = notes[draggedIndex];
+
+    if(!draggedItem){
+        return;
+    }
+
+    const draggedFixed = draggedItem.fixed === true;
+
+    const targetItem = notes[ind];
+
+    if(!targetItem){
+        return;
+    }
+
+    const targetFixed = targetItem.fixed === true;
+
+    if(!draggedFixed && targetFixed){
+        draggedIndex = null;
+        showNotes();
+        return;
+    }
+
+    if(draggedFixed && !targetFixed){
+        draggedIndex = null;
+        showNotes();
+        return;
+    }
+
+    const draggedItemRemoved = notes.splice(draggedIndex, 1)[0];
+
+    if(draggedIndex < ind){
+        ind--;
+    }
+
+    notes.splice(ind, 0, draggedItemRemoved);
+
+    localStorage.setItem('notes', JSON.stringify(notes));
+
+    draggedIndex = null;
+
+    showNotes();
+}
+
+function dropNoteFromFolder(ind){
+
+    if(draggedIndex === null){
+        return;
+    }
+
+    let notes = localStorage.getItem('notes');
+
+    if(notes === null){
+        return;
+    }
+
+    notes = JSON.parse(notes);
+
+    const folder = notes[currentFolder];
+
+    if(!folder){
+        return;
+    }
+
+    const draggedNote = folder.notes[draggedIndex];
+
+    if(!draggedNote){
+        return;
+    }
+
+    const targetNote = folder.notes[ind];
+
+    if(!targetNote){
+        return;
+    }
+
+    const draggedFixed = draggedNote.fixed === true;
+    const targetFixed = targetNote.fixed === true;
+
+    if(!draggedFixed && targetFixed){
+        draggedIndex = null;
+        showFolder();
+        return;
+    }
+
+    if(draggedFixed && !targetFixed){
+        draggedIndex = null;
+        showFolder();
+        return;
+    }
+
+    const draggedNoteRemoved =
+        folder.notes.splice(draggedIndex, 1)[0];
+
+    if(draggedIndex < ind){
+        ind--;
+    }
+
+    folder.notes.splice(ind, 0, draggedNoteRemoved);
+
+    localStorage.setItem('notes', JSON.stringify(notes));
+
+    draggedIndex = null;
+
+    showFolder();
+}
 
 function addNotes(){
     let notes = localStorage.getItem('notes');
@@ -28,6 +161,7 @@ function addNotes(){
         type: "note",
         title: addTitle.value,
         text: addText.value,
+        fixed: false
     }
     addTitle.value = '';
     addText.value = '';
@@ -75,10 +209,28 @@ function addFolder(){
         type: "folder",
         id: Date.now(),
         title: folderName.trim(),
-        notes: []
+        notes: [],
+        fixed: false
     }
 
     notes.push(folderObj);
+
+    localStorage.setItem('notes', JSON.stringify(notes));
+
+    showNotes();
+}
+
+function togglePin(ind){
+
+    let notes = localStorage.getItem('notes');
+
+    if(notes === null){
+        return;
+    }
+
+    notes = JSON.parse(notes);
+
+    notes[ind].fixed = !notes[ind].fixed;
 
     localStorage.setItem('notes', JSON.stringify(notes));
 
@@ -101,32 +253,52 @@ function showNotes(){
         notes = JSON.parse(notes);
     }
 
-    for(let i = 0; i < notes.length; i++){
+    // Cria uma cópia dos itens com seu índice original
+    const sortedNotes = notes
+        .map((item, index) => ({
+            item: item,
+            originalIndex: index
+        }))
+        .sort((a, b) => {
+            return (b.item.fixed === true) - (a.item.fixed === true);
+        });
 
-        // ==========================
-        // PASTA
-        // ==========================
+    for(let i = 0; i < sortedNotes.length; i++){
 
-        if(notes[i].type === "folder"){
+        const item = sortedNotes[i].item;
+        const originalIndex = sortedNotes[i].originalIndex;
+
+        if(item.type === "folder"){
 
             notesHTML += `
-                <div class="folder">
+                <div class="folder"
+                     draggable="true"
+                     ondragstart="dragStart(${originalIndex})"
+                     ondragover="allowDrop(event)"
+                     ondrop="dropItem(${originalIndex})">
 
-                    <div class="folder-content" onclick="openFolder(${i})">
+                    <div class="folder-content"
+                         onclick="openFolder(${originalIndex})">
 
                         <div class="folder-icon">
                             📁
                         </div>
 
                         <div class="folder-title">
-                            ${notes[i].title}
+                            ${item.title}
                         </div>
 
                     </div>
 
                     <button
+                        class="pinFolder"
+                        onclick="event.stopPropagation(); toggleFolderPin(${originalIndex})">
+                        ${item.fixed === true ? '📌' : '📍'}
+                    </button>
+
+                    <button
                         class="deleteFolder"
-                        onclick="event.stopPropagation(); deleteFolder(${i})">
+                        onclick="event.stopPropagation(); deleteFolder(${originalIndex})">
                         🗑️
                     </button>
 
@@ -138,11 +310,21 @@ function showNotes(){
         else{
 
             notesHTML += `
-                <div class="note">
+                <div class="note"
+                     draggable="true"
+                     ondragstart="dragStart(${originalIndex})"
+                     ondragover="allowDrop(event)"
+                     ondrop="dropItem(${originalIndex})">
+
+                    <button
+                        class="pinNote"
+                        onclick="togglePin(${originalIndex})">
+                        ${item.fixed === true ? '📌' : '📍'}
+                    </button>
 
                     <button
                         class="deleteNote"
-                        onclick="deleteNote(${i})">
+                        onclick="deleteNote(${originalIndex})">
                         🗑️
                     </button>
 
@@ -152,19 +334,19 @@ function showNotes(){
 
                     <span class="title">
                         <strong>
-                            ${notes[i].title === "" ? 'Note' : notes[i].title}
+                            ${item.title === "" ? 'Note' : item.title}
                         </strong>
                     </span>
 
                     <div class="text">
-                        ${notes[i].text}
+                        ${item.text}
                     </div>
 
                     <button
                         class="exportNote"
-                        onclick="exportNote(${i})">
+                        onclick="exportNote(${originalIndex})">
                         Exportar
-                   </button>
+                    </button>
 
                 </div>
             `;
@@ -254,7 +436,6 @@ ${notes[i].text}
 `;
     }
 
-    // Não cria arquivo se não houver nenhuma nota
     if(noteCount === 0){
         alert("Não há notas para exportar.");
         return;
@@ -276,6 +457,7 @@ ${notes[i].text}
 }
 
 function showFolder(){
+
     inputBox.style.display = 'block';
     trashButton.style.display = 'none';
     addFolderButton.style.display = 'none';
@@ -288,40 +470,75 @@ function showFolder(){
 
     notes = JSON.parse(notes);
 
+    // Pega a pasta atual
     const folder = notes[currentFolder];
+
+    if(folder === undefined){
+        return;
+    }
+
+    const sortedFolderNotes = folder.notes
+        .map((item, index) => ({
+            item: item,
+            originalIndex: index
+        }))
+        .sort((a, b) => {
+            return (b.item.fixed === true) - (a.item.fixed === true);
+        });
 
     let folderHTML = `
         <div class="folder-navigation">
+
             <button id="backButton" onclick="backToNotes()">
-                 ← Voltar
+                ← Voltar
             </button>
+
+            <button onclick="exportAllNotesFromFolder()">
+                Exportar todas
+            </button>
+
         </div>
     `;
 
     let notesHTML = '';
 
-    for(let i = 0; i < folder.notes.length; i++){
+    for(let i = 0; i < sortedFolderNotes.length; i++){
+
+        const note = sortedFolderNotes[i].item;
+        const originalIndex = sortedFolderNotes[i].originalIndex;
 
         notesHTML += `
-            <div class="note">
+            <div class="note"
+                 draggable="true"
+                 ondragstart="dragStart(${originalIndex}, true)"
+                 ondragover="allowDrop(event)"
+                 ondrop="dropNoteFromFolder(${originalIndex})">
 
-                <button 
-                    class="deleteNote" 
-                    onclick="deleteNoteFromFolder(${i})">
+                <button
+                    class="pinNote"
+                    onclick="togglePinFromFolder(${originalIndex})">
+                    ${note.fixed === true ? '📌' : '📍'}
+                </button>
+
+                <button
+                    class="deleteNote"
+                    onclick="deleteNoteFromFolder(${originalIndex})">
                     🗑️
                 </button>
-                
+
                 <span class="title">
                     <strong style="font-size: 20px;">
-                        ${folder.notes[i].title === "" ? 'Note' : folder.notes[i].title}
+                        ${note.title === "" ? 'Note' : note.title}
                     </strong>
                 </span>
 
-                <div class="text">${folder.notes[i].text}</div>
+                <div class="text">
+                    ${note.text}
+                </div>
 
                 <button
                     class="exportNote"
-                    onclick="exportNoteFromFolder(${i})">
+                    onclick="exportNoteFromFolder(${originalIndex})">
                     Exportar
                 </button>
 
@@ -330,6 +547,41 @@ function showFolder(){
     }
 
     notesDiv.innerHTML = folderHTML + notesHTML;
+}
+
+function togglePinFromFolder(ind){
+
+    let notes = localStorage.getItem('notes');
+
+    if(notes === null){
+        return;
+    }
+
+    notes = JSON.parse(notes);
+
+    notes[currentFolder].notes[ind].fixed =
+        !notes[currentFolder].notes[ind].fixed;
+
+    localStorage.setItem('notes', JSON.stringify(notes));
+
+    showFolder();
+}
+
+function toggleFolderPin(ind){
+
+    let notes = localStorage.getItem('notes');
+
+    if(notes === null){
+        return;
+    }
+
+    notes = JSON.parse(notes);
+
+    notes[ind].fixed = !notes[ind].fixed;
+
+    localStorage.setItem('notes', JSON.stringify(notes));
+
+    showNotes();
 }
 
 function exportNoteFromFolder(ind){
@@ -548,10 +800,8 @@ function showTrash(){
         trash = JSON.parse(trash);
     }
 
-    // Esconde a área de criação de notas
     inputBox.style.display = 'none';
 
-    // Esconde o botão da lixeira enquanto já estamos nela
     trashButton.style.display = 'none';
 
     let trashHTML = `
