@@ -1,3 +1,4 @@
+<img width="1350" height="566" alt="exemplo2" src="https://github.com/user-attachments/assets/51c9017f-9efc-4407-844f-4f3b9d55ebdc" />
 # project1-2026b-renatasfon
 # Projeto: Remake de aplicação web simples
 
