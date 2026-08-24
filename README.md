@@ -12,7 +12,7 @@ https://elc1090.github.io/project1-2026b-renatasfon/
 
 
 ## Desenvolvedor(a)
-Renata Fonseca
+Renata Fonseca  
 Sistemas de Informação
 
 
@@ -26,7 +26,8 @@ Sistemas de Informação
 
 ### Descrição
 
-Substitua este texto por uma descrição do app original. Inclua observações sobre sua autoria, conteúdo, aparência e código.
+O app original "My notes" contém funcionalidades básicas de adicionar título e conteúdo a um bloco de notas, salvar no navegador e deletar as notas.  
+O código é simples e desenvolvido em poucas linhas, facilitando a compreensão da criação. Entretanto, resulta em uma experiência limitada ao usuário. A interface em tom escuro possui um visual básico e pouco interativo, e a falta de recursos essenciais como busca, categorias ou edição avançada acaba desestimulando o uso contínuo do site.
 
 ## Demanda do(a) cliente
 
@@ -64,7 +65,7 @@ Por fim, a implementação do suporte a Markdown foi a etapa que apresentou maio
 
 Em relação ao HTML, eu já possuía algum conhecimento, o que tornou a estruturação da interface mais simples. Nesse caso, utilizei a inteligência artificial principalmente para compreender como conectar os elementos da página ao código JavaScript. No CSS, como eu tinha pouca familiaridade, precisei de mais apoio para organizar o layout e melhorar a apresentação visual da aplicação.
 
-Por fim, eu não imaginava que as demandas resultariam em tantas linhas de código. No entanto, quando percebi, o arquivo JavaScript já contava com 1.143 linhas, o que dificultava sua organização e tornava o código menos limpo. Para melhorar sua modularização, decidi utilizar a IA do VS Code como apoio. Fiquei surpresa com o resultado, pois a ferramenta criou os arquivos necessários, separou as funções em módulos, adicionou os imports e ainda realizou testes para verificar se a aplicação continuava funcionando sem erros. Considerei essa experiência muito interessante e útil, pois, além de auxiliar na conexão entre as funções, a modularização automatizada poupou bastante tempo durante o desenvolvimento.
+Por fim, eu não imaginava que as demandas resultariam em tantas linhas de código. No entanto, quando percebi, o arquivo JavaScript já contava com 1.143 linhas, o que dificultava a organização e tornava o código menos limpo. Para melhorar a modularização, decidi utilizar a IA do VS Code como apoio. Fiquei surpresa com o resultado, pois a ferramenta criou os arquivos necessários, separou as funções em módulos, adicionou os imports e ainda realizou testes para verificar se a aplicação continuava funcionando sem erros. Considerei essa experiência muito interessante e útil, pois, além de auxiliar na conexão entre as funções, a modularização automatizada poupou bastante tempo durante o desenvolvimento.
 
 
 ### Trechos de código
@@ -88,7 +89,8 @@ export function markdownToHTML(text) {
 }
 ```
 
-Decidi colocar esse trecho como exemplo de algo que aprendi, mas ainda tenho dificuldade de compreensão. Eu nunca imaginaria essas linhas e não chegaria sozinha à escrita delas. Acho difícil identificar o que `(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')` está determinando.
+Decidi colocar esse trecho como exemplo de algo que aprendi, mas ainda tenho dificuldade de compreensão.  
+Eu nunca imaginaria essas linhas e não chegaria sozinha à escrita delas. Acho difícil identificar o que `(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')` está determinando.
 
 ## Trecho 2
 
@@ -119,14 +121,14 @@ Escolhi esse segundo trecho por achar interessante a forma como o código funcio
 ### Linguagens e afins
 
 - JavaScript ES Modules: divisão do código em arquivos com import e export.
-- JavaScript
-- HTML5
-- CSS3
 - DOM API: manipulação dos elementos HTML por meio de document, getElementById, innerHTML e eventos.
 - Drag and Drop API: implementação do recurso de arrastar e reorganizar notas e pastas.
 - ExecCommand API: aplicação de negrito, itálico e listas no editor de texto.
-- RegEx (expressões regulares) interpretação de marcações Markdown, como **negrito** e *itálico*.
-- Blob e URL API geração e download dos arquivos .txt exportados.
+- RegEx (expressões regulares): interpretação de marcações Markdown, como **negrito** e *itálico*.
+- Blob e URL API: geração e download dos arquivos .txt exportados.
+- JavaScript
+- HTML5
+- CSS3
 
 ### Ambiente de desenvolvimento
 
