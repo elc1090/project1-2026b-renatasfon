@@ -63,7 +63,8 @@ export function reorderNotes(folderIndex, fromIndex, toIndex) {
 }
 
 export function exportNote(folderIndex, noteIndex) {
-    const note = getNotes()[folderIndex]?.notes[noteIndex];
+    const folder = getNotes()[folderIndex];
+    const note = folder?.notes[noteIndex];
     downloadNote(note);
 }
 
@@ -72,7 +73,14 @@ export function exportAllNotes(folderIndex) {
     exportFolderNotes(folder);
 }
 
-export function showFolder({ folderIndex, inputBox, trashButton, addFolderButton, exportAllButton, notesDiv }) {
+export function showFolder({
+    folderIndex,
+    inputBox,
+    trashButton,
+    addFolderButton,
+    exportAllButton,
+    notesDiv
+}) {
     inputBox.style.display = 'block';
     trashButton.style.display = 'none';
     addFolderButton.style.display = 'none';
@@ -84,18 +92,56 @@ export function showFolder({ folderIndex, inputBox, trashButton, addFolderButton
     }
 
     const sortedNotes = folder.notes
-        .map((item, index) => ({ item, originalIndex: index }))
-        .sort((a, b) => (b.item.fixed === true) - (a.item.fixed === true));
+        .map((item, index) => ({
+            item,
+            originalIndex: index
+        }))
+        .sort((a, b) => {
+            const fixedA = a.item.fixed === true;
+            const fixedB = b.item.fixed === true;
 
-    const navigation = `<div class="folder-navigation"><button id="backButton" onclick="backToNotes()">← Voltar</button><button onclick="exportAllNotesFromFolder()">Exportar todas</button></div>`;
-    const content = sortedNotes.map(({ item, originalIndex }) => `<div class="note" style="border-color: ${item.color || '#000000'}" draggable="true" ondragstart="dragStart(${originalIndex}, true)" ondragover="allowDrop(event)" ondrop="dropNoteFromFolder(${originalIndex})">
-        <button class="pinNote" onclick="togglePinFromFolder(${originalIndex})">${item.fixed ? '📌' : '📍'}</button>
-        <button class="deleteNote" onclick="deleteNoteFromFolder(${originalIndex})">🗑️</button>
+            return fixedB - fixedA;
+        });
+
+    const navigation = `<div class="folder-navigation">
+        <button
+            id="backButton"
+            onclick="backToNotes()">
+            ← Voltar
+        </button>
+        <button onclick="exportAllNotesFromFolder()">
+            Exportar todas
+        </button>
+    </div>`;
+
+    const content = sortedNotes
+        .map(({ item, originalIndex }) => `<div
+            class="note"
+            style="border-color: ${item.color || '#000000'}"
+            draggable="true"
+            ondragstart="dragStart(${originalIndex}, true)"
+            ondragover="allowDrop(event)"
+            ondrop="dropNoteFromFolder(${originalIndex})">
+        <button
+            class="pinNote"
+            onclick="togglePinFromFolder(${originalIndex})">
+            ${item.fixed ? '📌' : '📍'}
+        </button>
+        <button
+            class="deleteNote"
+            onclick="deleteNoteFromFolder(${originalIndex})">
+            🗑️
+        </button>
         <span class="title"><strong style="font-size: 20px;">${item.title === '' ? 'Note' : item.title}</strong></span>
         <div class="text">${item.text}</div>
         <div class="note-tags">${(item.tags || []).map(tag => `<span class="tag">#${tag}</span>`).join('')}</div>
-        <button class="exportNote" onclick="exportNoteFromFolder(${originalIndex})">Exportar</button>
-    </div>`).join('');
+        <button
+            class="exportNote"
+            onclick="exportNoteFromFolder(${originalIndex})">
+            Exportar
+        </button>
+        </div>`)
+        .join('');
 
     notesDiv.innerHTML = navigation + content;
 }
